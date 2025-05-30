@@ -1,0 +1,112 @@
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card shadow mb-4">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Book Tickets</h4>
+      </div>
+      <div class="card-body">
+        <div class="mb-4">
+          <h5>Movie: <span class="text-primary"><%= showtime.movie_title %></span></h5>
+          <h5>Theater: <span class="text-primary"><%= showtime.theater_name %></span></h5>
+          <h5>Date & Time: <span class="text-primary">
+            <%= new Date(showtime.show_date).toLocaleDateString() %> at <%= showtime.show_time %>
+          </span></h5>
+          <h5>Price per ticket: <span class="text-primary">$<%= Number(showtime.price).toFixed(2) %></span></h5>
+          <h5>Available seats: <span class="text-primary"><%= showtime.available_seats %></span></h5>
+        </div>
+        <form id="bookingForm">
+          <input type="hidden" id="showtimeId" value="<%= showtime.showtime_id %>">
+          <div class="mb-4">
+            <label for="seats" class="form-label">Number of Seats</label>
+            <input type="number" class="form-control" id="seats" name="seats" min="1" max="<%= showtime.available_seats %>" value="1" required>
+            <div class="form-text">Maximum <%= showtime.available_seats %> seats available</div>
+          </div>
+          <div class="mb-4">
+            <h5>Total Amount: <span id="totalAmount" class="text-primary">$<%= Number(showtime.price).toFixed(2) %></span></h5>
+          </div>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="fas fa-ticket-alt me-2"></i> Confirm Booking
+            </button>
+            <a href="/movies/<%= showtime.movie_id %>" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card shadow">
+      <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Booking Summary</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+          <span>Movie:</span>
+          <span class="fw-bold"><%= showtime.movie_title %></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span>Theater:</span>
+          <span class="fw-bold"><%= showtime.theater_name %></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span>Date:</span>
+          <span class="fw-bold"><%= new Date(showtime.show_date).toLocaleDateString() %></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span>Time:</span>
+          <span class="fw-bold"><%= showtime.show_time %></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span>Seats:</span>
+          <span class="fw-bold" id="seatsSummary">1</span>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between">
+          <span class="fw-bold">Total:</span>
+          <span class="fw-bold" id="totalSummary">$<%= Number(showtime.price).toFixed(2) %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const seatsInput = document.getElementById('seats');
+  const totalAmount = document.getElementById('totalAmount');
+  const seatsSummary = document.getElementById('seatsSummary');
+  const totalSummary = document.getElementById('totalSummary');
+  const bookingForm = document.getElementById('bookingForm');
+  const price = Number(<%= showtime.price %>);
+  seatsInput.addEventListener('input', function() {
+    const seats = parseInt(this.value) || 0;
+    const total = (seats * price).toFixed(2);
+    totalAmount.textContent = `$${total}`;
+    seatsSummary.textContent = seats;
+    totalSummary.textContent = `$${total}`;
+  });
+  bookingForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const seats = parseInt(seatsInput.value);
+    const showtimeId = document.getElementById('showtimeId').value;
+    fetch('/book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ showtimeId, seats })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Booking successful!');
+        window.location.href = '/my-bookings';
+      } else {
+        alert('Booking failed: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
+    });
+  });
+});
+</script>

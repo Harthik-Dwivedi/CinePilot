@@ -1,0 +1,206 @@
+<div class="container py-5">
+  <div class="row">
+    <!-- Profile Information -->
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <div class="position-relative mb-4">
+            <img src="<%= user.profile_picture || '/images/default-profile.png' %>" 
+                 class="rounded-circle img-thumbnail" 
+                 style="width: 150px; height: 150px; object-fit: cover;"
+                 alt="Profile Picture">
+            <button class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#uploadPictureModal">
+              <i class="fas fa-camera"></i>
+            </button>
+          </div>
+          <h4><%= user.firstName %> <%= user.lastName %></h4>
+          <p class="text-muted">@<%= user.username %></p>
+          <p><i class="fas fa-envelope me-2"></i><%= user.email %></p>
+          <% if (user.phone_number) { %>
+            <p><i class="fas fa-phone me-2"></i><%= user.phone_number %></p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preferences and Settings -->
+    <div class="col-md-8">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Preferences</h5>
+        </div>
+        <div class="card-body">
+          <form id="preferencesForm">
+            <div class="mb-4">
+              <h6>Preferred Genres</h6>
+              <div class="row">
+                <% const genres = ['Action', 'Comedy', 'Drama', 'Horror', 'Sci-Fi', 'Romance', 'Thriller', 'Documentary']; %>
+                <% genres.forEach(genre => { %>
+                  <div class="col-md-3 mb-2">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="genres" value="<%= genre %>" 
+                             id="genre<%= genre %>" <%= userPreferences?.preferred_genres?.includes(genre) ? 'checked' : '' %>>
+                      <label class="form-check-label" for="genre<%= genre %>">
+                        <%= genre %>
+                      </label>
+                    </div>
+                  </div>
+                <% }); %>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <h6>Notification Preferences</h6>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" name="notifications" value="booking_confirmation" 
+                       id="notifBooking" <%= userPreferences?.notification_preferences?.includes('booking_confirmation') ? 'checked' : '' %>>
+                <label class="form-check-label" for="notifBooking">
+                  Booking Confirmations
+                </label>
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" name="notifications" value="booking_reminder" 
+                       id="notifReminder" <%= userPreferences?.notification_preferences?.includes('booking_reminder') ? 'checked' : '' %>>
+                <label class="form-check-label" for="notifReminder">
+                  Booking Reminders
+                </label>
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" name="notifications" value="movie_recommendations" 
+                       id="notifRecommendations" <%= userPreferences?.notification_preferences?.includes('movie_recommendations') ? 'checked' : '' %>>
+                <label class="form-check-label" for="notifRecommendations">
+                  Movie Recommendations
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Preferences</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h5 class="mb-0">Recent Activity</h5>
+        </div>
+        <div class="card-body">
+          <div class="list-group">
+            <% notifications.forEach(notification => { %>
+              <div class="list-group-item list-group-item-action <%= notification.is_read ? '' : 'active' %>">
+                <div class="d-flex w-100 justify-content-between">
+                  <h6 class="mb-1"><%= notification.title %></h6>
+                  <small><%= new Date(notification.created_at).toLocaleDateString() %></small>
+                </div>
+                <p class="mb-1"><%= notification.message %></p>
+                <% if (!notification.is_read) { %>
+                  <button class="btn btn-sm btn-outline-primary mark-read" 
+                          data-notification-id="<%= notification.notification_id %>">
+                    Mark as Read
+                  </button>
+                <% } %>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Picture Modal -->
+<div class="modal fade" id="uploadPictureModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Upload Profile Picture</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="uploadPictureForm">
+          <div class="mb-3">
+            <label for="profilePicture" class="form-label">Choose Image</label>
+            <input type="file" class="form-control" id="profilePicture" name="profilePicture" accept="image/*" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('preferencesForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const preferredGenres = formData.getAll('genres');
+  const notificationPreferences = formData.getAll('notifications');
+
+  try {
+    const response = await fetch('/user/preferences', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        preferredGenres,
+        notificationPreferences
+      })
+    });
+
+    if (response.ok) {
+      alert('Preferences saved successfully!');
+    } else {
+      throw new Error('Failed to save preferences');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Failed to save preferences. Please try again.');
+  }
+});
+
+document.getElementById('uploadPictureForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+
+  try {
+    const response = await fetch('/user/profile/picture', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      window.location.reload();
+    } else {
+      throw new Error('Failed to upload picture');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Failed to upload picture. Please try again.');
+  }
+});
+
+document.querySelectorAll('.mark-read').forEach(button => {
+  button.addEventListener('click', async () => {
+    const notificationId = button.dataset.notificationId;
+    try {
+      const response = await fetch(`/user/notifications/${notificationId}/read`, {
+        method: 'POST'
+      });
+
+      if (response.ok) {
+        button.closest('.list-group-item').classList.remove('active');
+        button.remove();
+      } else {
+        throw new Error('Failed to mark notification as read');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to mark notification as read. Please try again.');
+    }
+  });
+});
+</script> 

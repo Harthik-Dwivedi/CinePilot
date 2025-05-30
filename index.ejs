@@ -1,0 +1,46 @@
+<!-- Hero Section -->
+<section class="hero-section mb-5">
+  <div class="hero-content text-center py-5">
+    <h1 class="display-4 mb-3">Welcome To CinePilot</h1>
+    <p class="lead mb-4">Book your favorite movies with ease and enjoy the show!</p>
+    <a href="/movies" class="btn btn-primary btn-lg">Browse Movies</a>
+  </div>
+</section>
+
+<!-- Main Content Row: Chat (left) and Movies (right) -->
+<div class="home-main-row row align-items-start g-4" style="min-height: 70vh;">
+  <div class="home-chat-sidebar col-lg-4 d-flex flex-column justify-content-start">
+    <%- include('partials/chat_sidebar') %>
+  </div>
+  <div class="col-lg-8">
+    <!-- Featured Movies Section -->
+    <section class="featured-movies-section mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="featured-movies-title mb-0">Featured Movies</h2>
+        <a href="/movies" class="btn btn-outline-primary">View All</a>
+      </div>
+      <div class="row movies-grid">
+        <% movies.forEach(movie => { %>
+          <div class="col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
+            <div class="card h-100 movie-card">
+              <div class="card-img-container">
+                <% if (movie.image_url) { %>
+                  <img src="<%= movie.image_url %>" class="card-img-top" alt="<%= movie.title %> poster">
+                <% } else { %>
+                  <div class="movie-img-placeholder">
+                    <span><%= movie.title.charAt(0) %></span>
+                  </div>
+                <% } %>
+              </div>
+              <div class="card-body">
+                <h5 class="card-title"><%= movie.title %></h5>
+                <p class="card-text small text-muted"><%= movie.genre %></p>
+                <a href="/movies/<%= movie.movie_id %>" class="btn btn-sm btn-primary">View Details</a>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </section>
+  </div>
+</div>

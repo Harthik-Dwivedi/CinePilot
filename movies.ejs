@@ -1,0 +1,165 @@
+<h1 class="mb-4">All Movies</h1>
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body">
+        <form id="filterForm" class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label">Search</label>
+            <input type="text" name="q" class="form-control" value="<%= searchQuery || '' %>" placeholder="Search movies...">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Genre</label>
+            <select name="genre" class="form-select">
+              <option value="">All Genres</option>
+              <option value="Action" <%= filters.genre === 'Action' ? 'selected' : '' %>>Action</option>
+              <option value="Comedy" <%= filters.genre === 'Comedy' ? 'selected' : '' %>>Comedy</option>
+              <option value="Drama" <%= filters.genre === 'Drama' ? 'selected' : '' %>>Drama</option>
+              <option value="Sci-Fi" <%= filters.genre === 'Sci-Fi' ? 'selected' : '' %>>Sci-Fi</option>
+              <option value="Horror" <%= filters.genre === 'Horror' ? 'selected' : '' %>>Horror</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Rating</label>
+            <select name="rating" class="form-select">
+              <option value="">All Ratings</option>
+              <option value="G" <%= filters.rating === 'G' ? 'selected' : '' %>>G</option>
+              <option value="PG" <%= filters.rating === 'PG' ? 'selected' : '' %>>PG</option>
+              <option value="PG-13" <%= filters.rating === 'PG-13' ? 'selected' : '' %>>PG-13</option>
+              <option value="R" <%= filters.rating === 'R' ? 'selected' : '' %>>R</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+              <option value="">All Status</option>
+              <option value="NOW_SHOWING" <%= filters.status === 'NOW_SHOWING' ? 'selected' : '' %>>Now Showing</option>
+              <option value="COMING_SOON" <%= filters.status === 'COMING_SOON' ? 'selected' : '' %>>Coming Soon</option>
+              <option value="ENDED" <%= filters.status === 'ENDED' ? 'selected' : '' %>>Ended</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Sort By</label>
+            <select name="sort" class="form-select">
+              <option value="release_date" <%= filters.sort === 'release_date' ? 'selected' : '' %>>Release Date</option>
+              <option value="title" <%= filters.sort === 'title' ? 'selected' : '' %>>Title</option>
+              <option value="duration_minutes" <%= filters.sort === 'duration_minutes' ? 'selected' : '' %>>Duration</option>
+              <option value="imdb_rating" <%= filters.sort === 'imdb_rating' ? 'selected' : '' %>>IMDB Rating</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Release Date Range</label>
+            <div class="input-group">
+              <input type="date" name="minDate" class="form-control" value="<%= filters.minDate || '' %>" placeholder="From">
+              <input type="date" name="maxDate" class="form-control" value="<%= filters.maxDate || '' %>" placeholder="To">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Duration (minutes)</label>
+            <div class="input-group">
+              <input type="number" name="minDuration" class="form-control" value="<%= filters.minDuration || '' %>" placeholder="Min">
+              <input type="number" name="maxDuration" class="form-control" value="<%= filters.maxDuration || '' %>" placeholder="Max">
+            </div>
+          </div>
+          <div class="col-md-12">
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+            <a href="/movies" class="btn btn-secondary">Reset</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" id="moviesList">
+  <% movies.forEach(movie => { %>
+    <div class="col-md-6 col-lg-4 mb-4 movie-item">
+      <div class="card h-100 movie-card">
+        <div class="card-img-container">
+          <% if (movie.image_url) { %>
+            <img src="<%= movie.image_url %>" class="card-img-top" alt="<%= movie.title %> poster" style="height: 200px; object-fit: cover;">
+          <% } else { %>
+            <div class="movie-img-placeholder" style="background-color: hsl(<%= movie.title.charCodeAt(0) % 360 %>, 70%, 60%);">
+              <span><%= movie.title.charAt(0) %></span>
+            </div>
+          <% } %>
+          <% if (movie.status === 'COMING_SOON') { %>
+            <div class="position-absolute top-0 end-0 m-2">
+              <span class="badge bg-warning">Coming Soon</span>
+            </div>
+          <% } %>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title"><%= movie.title %></h5>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge bg-primary"><%= movie.genre %></span>
+            <span class="text-muted"><%= movie.duration_minutes %> min</span>
+          </div>
+          <p class="card-text movie-description"><%= movie.description %></p>
+          <% if (movie.imdb_rating) { %>
+            <div class="mb-2">
+              <small class="text-muted">IMDB Rating: <%= movie.imdb_rating %>/10</small>
+            </div>
+          <% } %>
+        </div>
+        <div class="card-footer bg-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">Rating: <%= movie.rating %></small>
+            <a href="/movies/<%= movie.movie_id %>" class="btn btn-sm btn-outline-primary">View Details</a>
+            <% if (typeof user !== 'undefined' && user) { %>
+              <button class="btn btn-sm btn-outline-warning watchlist-btn" data-movie-id="<%= movie.movie_id %>">
+                <i class="fas fa-bookmark"></i> Add to Watchlist
+              </button>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% }); %>
+</div>
+
+<% if (pagination.totalPages > 1) { %>
+  <nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+      <li class="page-item <%= pagination.currentPage === 1 ? 'disabled' : '' %>">
+        <a class="page-link" href="?page=<%= pagination.currentPage - 1 %>&<%= new URLSearchParams(filters).toString() %>">Previous</a>
+      </li>
+      <% for(let i = 1; i <= pagination.totalPages; i++) { %>
+        <li class="page-item <%= pagination.currentPage === i ? 'active' : '' %>">
+          <a class="page-link" href="?page=<%= i %>&<%= new URLSearchParams(filters).toString() %>"><%= i %></a>
+        </li>
+      <% } %>
+      <li class="page-item <%= pagination.currentPage === pagination.totalPages ? 'disabled' : '' %>">
+        <a class="page-link" href="?page=<%= pagination.currentPage + 1 %>&<%= new URLSearchParams(filters).toString() %>">Next</a>
+      </li>
+    </ul>
+  </nav>
+<% } %>
+
+<script>
+document.querySelectorAll('.watchlist-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    const movieId = this.dataset.movieId;
+    fetch('/watchlist/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ movieId })
+    }).then(res => res.json()).then(data => {
+      if (data.success) {
+        this.classList.remove('btn-outline-warning');
+        this.classList.add('btn-success');
+        this.innerHTML = '<i class="fas fa-check"></i> Added';
+      }
+    });
+  });
+});
+
+// Auto-submit form when select elements change
+document.querySelectorAll('#filterForm select').forEach(select => {
+  select.addEventListener('change', () => {
+    document.getElementById('filterForm').submit();
+  });
+});
+</script>

@@ -1,0 +1,117 @@
+<h1 class="mb-4">My Bookings</h1>
+
+<% if (bookings.length === 0) { %>
+    <div class="alert alert-info">
+        <p>You don't have any bookings yet.</p>
+        <a href="/movies" class="btn btn-primary mt-2">Browse Movies</a>
+    </div>
+<% } else { %>
+    <div class="row">
+        <% bookings.forEach(booking => { %>
+            <div class="col-md-6 mb-4">
+                <div class="card booking-card h-100">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><%= booking.movie_title %></h5>
+                        <span class="badge bg-<%= booking.booking_status === 'CONFIRMED' ? 'success' : 'warning' %>">
+                            <%= booking.booking_status %>
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p><strong>Theater:</strong><br><%= booking.theater_name %></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Date & Time:</strong><br>
+                                <%= new Date(booking.show_date).toLocaleDateString() %> at <%= booking.show_time %></p>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p><strong>Seats:</strong><br><%= booking.number_of_seats %></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Total Amount:</strong><br>$<%= Number(booking.total_amount).toFixed(2) %></p>
+                            </div>
+                        </div>
+                        
+                        <p><strong>Booking ID:</strong> #<%= booking.booking_id %></p>
+                        <p><strong>Booked On:</strong> <%= new Date(booking.created_at).toLocaleString() %></p>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-sm btn-outline-primary" onclick="printTicket(<%= JSON.stringify(booking) %>)">
+                                <i class="fas fa-print me-1"></i> Print Ticket
+                            </button>
+                            <% if (new Date(booking.show_date) > new Date()) { %>
+                                <button class="btn btn-sm btn-outline-danger" disabled>
+                                    <i class="fas fa-times-circle me-1"></i> Cancel
+                                </button>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+<% } %>
+
+<!-- Print Ticket Modal -->
+<div class="modal fade" id="printTicketModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Movie Ticket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="printTicketContent">
+                <div class="ticket-container">
+                    <div class="ticket-header">
+                        <h3>CinePilot</h3>
+                        <h4 id="ticketMovieTitle"></h4>
+                    </div>
+                    <div class="ticket-details">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Theater:</strong> <span id="ticketTheater"></span></p>
+                                <p><strong>Date:</strong> <span id="ticketDate"></span></p>
+                                <p><strong>Time:</strong> <span id="ticketTime"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Seats:</strong> <span id="ticketSeats"></span></p>
+                                <p><strong>Booking ID:</strong> <span id="ticketBookingId"></span></p>
+                                <p><strong>Status:</strong> <span id="ticketStatus"></span></p>
+                            </div>
+                        </div>
+                        <div class="ticket-barcode text-center mt-3">
+                            <i class="fas fa-barcode fa-3x"></i>
+                            <p class="mt-2">Please present this ticket at the theater entrance</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print me-1"></i> Print
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function printTicket(booking) {
+        document.getElementById('ticketMovieTitle').textContent = booking.movie_title;
+        document.getElementById('ticketTheater').textContent = booking.theater_name;
+        document.getElementById('ticketDate').textContent = new Date(booking.show_date).toLocaleDateString();
+        document.getElementById('ticketTime').textContent = booking.show_time;
+        document.getElementById('ticketSeats').textContent = booking.number_of_seats;
+        document.getElementById('ticketBookingId').textContent = '#' + booking.booking_id;
+        document.getElementById('ticketStatus').textContent = booking.booking_status;
+        
+        const ticketModal = new bootstrap.Modal(document.getElementById('printTicketModal'));
+        ticketModal.show();
+    }
+</script> 

@@ -1,0 +1,232 @@
+<div class="row">
+  <div class="col-md-4 mb-4">
+    <div class="movie-poster-container">
+      <% if (movie.image_url) { %>
+        <img src="<%= movie.image_url %>" class="img-fluid rounded shadow" alt="<%= movie.title %> poster" style="max-height: 400px; object-fit: cover;">
+      <% } else { %>
+        <div class="movie-img-placeholder large" style="background-color: hsl(<%= movie.title.charCodeAt(0) % 360 %>, 70%, 60%);">
+          <span><%= movie.title.charAt(0) %></span>
+        </div>
+      <% } %>
+    </div>
+    <% if (movie.trailer_url) { %>
+      <div class="mt-3">
+        <a href="<%= movie.trailer_url %>" class="btn btn-danger btn-block" target="_blank">
+          <i class="fas fa-play-circle"></i> Watch Trailer
+        </a>
+      </div>
+    <% } %>
+  </div>
+  <div class="col-md-8">
+    <h1 class="mb-2"><%= movie.title %></h1>
+    <div class="mb-3">
+      <% genres.forEach(genre => { %>
+        <span class="badge bg-primary me-2"><%= genre %></span>
+      <% }); %>
+      <span class="badge bg-secondary me-2"><%= movie.rating %></span>
+      <span class="badge bg-info"><%= movie.duration_minutes %> minutes</span>
+      <% if (movie.status) { %>
+        <span class="badge bg-<%= movie.status === 'NOW_SHOWING' ? 'success' : movie.status === 'COMING_SOON' ? 'warning' : 'secondary' %>">
+          <%= movie.status.replace('_', ' ') %>
+        </span>
+      <% } %>
+    </div>
+    
+    <div class="mb-4">
+      <h5>Release Date:</h5>
+      <p><%= new Date(movie.release_date).toLocaleDateString() %></p>
+    </div>
+
+    <div class="mb-4">
+      <h5>Description:</h5>
+      <p><%= movie.description %></p>
+    </div>
+
+    <div class="mb-4">
+      <h5>Details:</h5>
+      <ul class="list-unstyled">
+        <li><strong>Language:</strong> <%= movie.language %></li>
+        <li><strong>Subtitles:</strong> <%= movie.subtitles %></li>
+        <% if (movie.imdb_rating) { %>
+          <li><strong>IMDB Rating:</strong> <%= movie.imdb_rating %>/10</li>
+        <% } %>
+        <% if (movie.rotten_tomatoes_rating) { %>
+          <li><strong>Rotten Tomatoes:</strong> <%= movie.rotten_tomatoes_rating %>%</li>
+        <% } %>
+      </ul>
+    </div>
+
+    <% if (tags.length > 0) { %>
+      <div class="mb-4">
+        <h5>Tags:</h5>
+        <% tags.forEach(tag => { %>
+          <span class="badge bg-light text-dark me-2"><%= tag %></span>
+        <% }); %>
+      </div>
+    <% } %>
+
+    <% if (typeof user !== 'undefined' && user) { %>
+      <button class="btn btn-outline-warning watchlist-btn" data-movie-id="<%= movie.movie_id %>">
+        <i class="fas fa-bookmark"></i> Add to Watchlist
+      </button>
+    <% } %>
+  </div>
+</div>
+
+<% if (cast.length > 0) { %>
+  <div class="mt-5">
+    <h2 class="mb-4">Cast & Crew</h2>
+    <div class="row">
+      <% cast.forEach(person => { %>
+        <div class="col-md-3 col-sm-6 mb-4">
+          <div class="card h-100">
+            <% if (person.image_url) { %>
+              <img src="<%= person.image_url %>" class="card-img-top" alt="<%= person.name %>">
+            <% } %>
+            <div class="card-body">
+              <h5 class="card-title"><%= person.name %></h5>
+              <p class="card-text">
+                <small class="text-muted"><%= person.role %></small><br>
+                <% if (person.character_name) { %>
+                  as <%= person.character_name %>
+                <% } %>
+              </p>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+<% } %>
+
+<div class="mt-5">
+  <h2 class="mb-4">Reviews</h2>
+  <% if (typeof user !== 'undefined' && user) { %>
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Write a Review</h5>
+        <form action="/movies/<%= movie.movie_id %>/review" method="POST">
+          <div class="mb-3">
+            <label class="form-label">Rating</label>
+            <select name="rating" class="form-select" required>
+              <option value="">Select rating</option>
+              <% for(let i = 1; i <= 5; i++) { %>
+                <option value="<%= i %>"><%= i %> Star<%= i > 1 ? 's' : '' %></option>
+              <% } %>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Your Review</label>
+            <textarea name="reviewText" class="form-control" rows="3" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit Review</button>
+        </form>
+      </div>
+    </div>
+  <% } %>
+
+  <% if (reviews.length > 0) { %>
+    <% reviews.forEach(review => { %>
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="card-title mb-0"><%= review.username %></h5>
+            <div class="text-warning">
+              <% for(let i = 1; i <= 5; i++) { %>
+                <i class="fas fa-star<%= i <= review.rating ? '' : '-o' %>"></i>
+              <% } %>
+            </div>
+          </div>
+          <p class="card-text"><%= review.review_text %></p>
+          <small class="text-muted"><%= new Date(review.created_at).toLocaleDateString() %></small>
+        </div>
+      </div>
+    <% }); %>
+  <% } else { %>
+    <div class="alert alert-info">No reviews yet. Be the first to review!</div>
+  <% } %>
+</div>
+
+<% if (similarMovies.length > 0) { %>
+  <div class="mt-5">
+    <h2 class="mb-4">Similar Movies</h2>
+    <div class="row">
+      <% similarMovies.forEach(similarMovie => { %>
+        <div class="col-md-3 col-sm-6 mb-4">
+          <div class="card h-100">
+            <% if (similarMovie.image_url) { %>
+              <img src="<%= similarMovie.image_url %>" class="card-img-top" alt="<%= similarMovie.title %>">
+            <% } %>
+            <div class="card-body">
+              <h5 class="card-title"><%= similarMovie.title %></h5>
+              <p class="card-text">
+                <small class="text-muted"><%= similarMovie.genre %></small>
+              </p>
+              <a href="/movies/<%= similarMovie.movie_id %>" class="btn btn-sm btn-primary">View Details</a>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+<% } %>
+
+<div class="mt-5">
+  <h2 class="mb-4">Available Showtimes</h2>
+  <% if (showtimes.length === 0) { %>
+    <div class="alert alert-info">
+      No upcoming showtimes available for this movie.
+    </div>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th>Theater</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Available Seats</th>
+            <th>Price</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% showtimes.forEach(showtime => { %>
+            <tr>
+              <td><%= showtime.theater_name %></td>
+              <td><%= new Date(showtime.show_date).toLocaleDateString() %></td>
+              <td><%= showtime.show_time %></td>
+              <td><%= showtime.available_seats %></td>
+              <td>$<%= Number(showtime.price).toFixed(2) %></td>
+              <td>
+                <a href="/book/<%= showtime.showtime_id %>" class="btn btn-sm btn-success">
+                  <i class="fas fa-ticket-alt me-1"></i> Book
+                </a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<script>
+document.querySelectorAll('.watchlist-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    const movieId = this.dataset.movieId;
+    fetch('/watchlist/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ movieId })
+    }).then(res => res.json()).then(data => {
+      if (data.success) {
+        this.classList.remove('btn-outline-warning');
+        this.classList.add('btn-success');
+        this.innerHTML = '<i class="fas fa-check"></i> Added';
+      }
+    });
+  });
+});
+</script>

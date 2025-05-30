@@ -1,0 +1,142 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow">
+      <div class="card-body p-5">
+        <h2 class="mb-4">Add New Movie</h2>
+        <% if (error) { %>
+          <div class="alert alert-danger"><%= error %></div>
+        <% } %>
+        <form action="/add-movie" method="POST">
+          <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input type="text" name="title" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Genres</label>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="genres[]" value="Action">
+                  <label class="form-check-label">Action</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="genres[]" value="Comedy">
+                  <label class="form-check-label">Comedy</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="genres[]" value="Drama">
+                  <label class="form-check-label">Drama</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="genres[]" value="Sci-Fi">
+                  <label class="form-check-label">Sci-Fi</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="genres[]" value="Horror">
+                  <label class="form-check-label">Horror</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="genres[]" value="Romance">
+                  <label class="form-check-label">Romance</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="genres[]" value="Thriller">
+                  <label class="form-check-label">Thriller</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="genres[]" value="Animation">
+                  <label class="form-check-label">Animation</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="genres[]" value="Documentary">
+                  <label class="form-check-label">Documentary</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Release Date</label>
+            <input type="date" name="release_date" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Duration (minutes)</label>
+            <input type="number" name="duration_minutes" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Rating</label>
+            <select name="rating" class="form-select" required>
+              <option value="">Select Rating</option>
+              <option value="G">G</option>
+              <option value="PG">PG</option>
+              <option value="PG-13">PG-13</option>
+              <option value="R">R</option>
+              <option value="NC-17">NC-17</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select" required>
+              <option value="NOW_SHOWING">Now Showing</option>
+              <option value="COMING_SOON">Coming Soon</option>
+              <option value="ENDED">Ended</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Language</label>
+            <input type="text" name="language" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Subtitles</label>
+            <input type="text" name="subtitles" class="form-control" placeholder="e.g., English, Spanish, French">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Image URL</label>
+            <input type="url" name="image_url" class="form-control" required>
+            <div class="form-text">Paste a direct link to a movie poster image (e.g., from IMDb, TMDb, or Imgur).</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Trailer URL</label>
+            <input type="url" name="trailer_url" class="form-control">
+            <div class="form-text">Paste a YouTube trailer URL.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">IMDB Rating</label>
+            <input type="number" name="imdb_rating" class="form-control" step="0.1" min="0" max="10">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Rotten Tomatoes Rating</label>
+            <input type="number" name="rotten_tomatoes_rating" class="form-control" min="0" max="100">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Tags</label>
+            <input type="text" name="tags" class="form-control" placeholder="Enter tags separated by commas">
+            <div class="form-text">e.g., Oscar Winner, Blockbuster, Independent Film</div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Add Movie</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
